@@ -1,0 +1,29 @@
+name: Gemini Programming Squad - Cross-Arch Attack
+
+on: [push, workflow_dispatch]
+
+jobs:
+  qemu-attack:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🛰️ クローン
+      uses: actions/checkout@v4
+
+    - name: 🚀 QEMU セットアップ (arm64 実行環境)
+      uses: docker/setup-qemu-action@v3
+
+    - name: 🛠️ クロスコンパイルツールの補給
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu
+
+    - name: 🔨 attack.c のクロスビルド (arm64用)
+      run: |
+        # x86上で実行可能な arm64 バイナリを作成
+        aarch64-linux-gnu-gcc -rdynamic attack.c -o attack_arm64 -ldl
+
+    - name: 🔥 異次元ポータル経由で特攻！！
+      run: |
+        # qemu-aarch64 を使って実行
+        # -L で arm64 用の標準ライブラリパスを指定するのがコツだ
+        qemu-aarch64 -L /usr/aarch64-linux-gnu ./attack_arm64 gameNativeInit 0
